@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>نور القرآن</title>
+
+<style>
+body{font-family:Arial;direction:rtl;padding:20px;background:#f7f7f7}
+h1{text-align:center}
+a{display:block;padding:10px;margin:5px;background:white;border-radius:8px;text-decoration:none;cursor:pointer}
+p{background:white;padding:8px;margin:5px;border-radius:6px}
+button{padding:8px 12px;margin-bottom:10px;cursor:pointer}
+#page{display:none}
+</style>
+</head>
+
+<body>
+
+<h1>📖 نور القرآن - رنيم نواف العنزي</h1>
+
+<div id="home">⏳ جاري تحميل السور...</div>
+<div id="page"></div>
+
+<script>
+
+let surahs = [];
+
+fetch("https://api.alquran.cloud/v1/surah")
+.then(res=>res.json())
+.then(data=>{
+
+  surahs = data.data;
+
+  const home = document.getElementById("home");
+  home.innerHTML = "";
+
+  surahs.forEach(s=>{
+
+    const a = document.createElement("a");
+    a.textContent = s.number + " - " + s.name;
+
+    a.onclick = ()=>openSurah(s.number);
+
+    home.appendChild(a);
+  });
+
+});
+
+function openSurah(num){
+
+  document.getElementById("home").style.display="none";
+  document.getElementById("page").style.display="block";
+  document.getElementById("page").innerHTML="⏳ جاري تحميل السورة...";
+
+  fetch("https://api.alquran.cloud/v1/surah/"+num)
+  .then(res=>res.json())
+  .then(d=>{
+
+    let html = "<button onclick='back()'>🔙 رجوع</button>";
+    html += "<h2>"+d.data.name+"</h2>";
+
+    d.data.ayahs.forEach(a=>{
+      html += "<p>"+a.text+"</p>";
+    });
+
+    document.getElementById("page").innerHTML = html;
+  });
+
+}
+
+function back(){
+  document.getElementById("page").style.display="none";
+  document.getElementById("home").style.display="block";
+}
+
+</script>
+
+</body>
+</html>
