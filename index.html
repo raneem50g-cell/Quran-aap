@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>تطبيق القرآن الكريم</title>
+<style>
+body { font-family: Arial; direction: rtl; padding: 20px; }
+input { width: 100%; padding: 10px; margin-bottom: 15px; }
+li { cursor: pointer; margin: 5px 0; }
+#ayahs { margin-top: 20px; white-space: pre-line; }
+</style>
+</head>
+<body>
+
+<h1>📖 القرآن الكريم</h1>
+
+<input id="search" placeholder="ابحث عن سورة...">
+
+<ul id="surahList"></ul>
+
+<div id="ayahs"></div>
+
+<script>
+// جلب قائمة السور
+fetch("https://api.alquran.cloud/v1/surah")
+.then(res => res.json())
+.then(data => {
+  const list = document.getElementById("surahList");
+  const surahs = data.data;
+
+  function render(items){
+    list.innerHTML = "";
+    items.forEach(surah => {
+      const li = document.createElement("li");
+      li.textContent = surah.name;
+      li.onclick = () => loadSurah(surah.number);
+      list.appendChild(li);
+    });
+  }
+
+  render(surahs);
+
+  // البحث
+  document.getElementById("search").addEventListener("input", e => {
+    const value = e.target.value;
+    const filtered = surahs.filter(s =>
+      s.name.includes(value)
+    );
+    render(filtered);
+  });
+});
+
+// جلب الآيات
+function loadSurah(num){
+  fetch(`https://api.alquran.cloud/v1/surah/${num}`)
+  .then(res => res.json())
+  .then(data => {
+    const ayahs = data.data.ayahs;
+    let text = "";
+
+    ayahs.forEach(a => {
+      text += a.text + " ﴿" + a.numberInSurah + "﴾\n";
+    });
+
+    document.getElementById("ayahs").innerText = text;
+  });
+}
+</script>
+
+</body>
+</html>
