@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>نور القرآن</title>
+
+<style>
+body{
+  font-family: Arial;
+  direction: rtl;
+  margin:0;
+  background:#f4f4f4;
+}
+
+/* الهيدر */
+header{
+  background:#2c3e50;
+  color:white;
+  padding:15px;
+  text-align:center;
+  font-size:18px;
+}
+
+/* زر الوضع الليلي */
+#darkBtn{
+  position:fixed;
+  top:10px;
+  left:10px;
+  padding:6px 10px;
+  cursor:pointer;
+}
+
+/* الصفحات */
+.page{display:none;padding:15px;}
+.active{display:block}
+
+/* السور */
+.surah{
+  background:white;
+  padding:12px;
+  margin:6px 0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* الآيات */
+.ayah{
+  background:white;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  line-height:1.8;
+}
+
+/* بحث */
+input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+}
+
+/* وضع ليلي */
+.dark{
+  background:#111;
+  color:white;
+}
+.dark .surah,
+.dark .ayah{
+  background:#222;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<header>📖 نور القرآن - رنيم نواف العنزي</header>
+
+<button id="darkBtn">🌙</button>
+
+<!-- الصفحة الرئيسية -->
+<div id="home" class="page active">
+  ⏳ جاري تحميل السور...
+</div>
+
+<!-- صفحة السورة -->
+<div id="surahPage" class="page"></div>
+
+<script>
+
+let surahs = [];
+
+// تحميل السور
+fetch("https://api.alquran.cloud/v1/surah")
+.then(r=>r.json())
+.then(data=>{
+
+  surahs = data.data;
+  render(surahs);
+
+});
+
+function render(list){
+
+  let home = document.getElementById("home");
+  home.innerHTML = `
+    <h2>السور</h2>
+    <input id="search" placeholder="ابحث عن سورة...">
+    <div id="list"></div>
+  `;
+
+  let listDiv = document.getElementById("list");
+
+  list.forEach(s=>{
+
+    let div = document.createElement("div");
+    div.className = "surah";
+    div.textContent = s.number + " - " + s.name;
+
+    div.onclick = ()=>openSurah(s.number);
+
+    listDiv.appendChild(div);
+  });
+
+  document.getElementById("search").addEventListener("input", function(){
+    let val = this.value;
+    let filtered = surahs.filter(s=>s.name.includes(val));
+    render(filtered);
+  });
+}
+
+// فتح سورة
+function openSurah(num){
+
+  show("surahPage");
+  document.getElementById("surahPage").innerHTML="⏳ جاري التحميل...";
+
+  fetch("https://api.alquran.cloud/v1/surah/"+num)
+  .then(r=>r.json())
+  .then(d=>{
+
+    let html = `<button onclick="back()">🔙 رجوع</button>`;
+    html += `<h2>${d.data.name}</h2>`;
+
+    d.data.ayahs.forEach(a=>{
+      html += `<div class="ayah">${a.text}</div>`;
+    });
+
+    document.getElementById("surahPage").innerHTML = html;
+  });
+
+}
+
+// رجوع
+function back(){
+  show("home");
+}
+
+// تبديل الصفحات
+function show(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+// الوضع الليلي
+document.getElementById("darkBtn").onclick = ()=>{
+  document.body.classList.toggle("dark");
+};
+
+</script>
+
+</body>
+</html>
