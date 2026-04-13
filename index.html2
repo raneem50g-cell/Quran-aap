@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ar">
+‏<head>
+‏<meta charset="UTF-8">
+‏<title>القرآن الكريم</title>
+‏<style>
+‏body { font-family: Arial; direction: rtl; padding: 20px; }
+‏li { cursor: pointer; margin: 8px 0; }
+‏</style>
+‏</head>
+‏<body>
+
+‏<h1>📖 السور</h1>
+
+‏<ul id="list"></ul>
+
+‏<div id="ayahs"></div>
+
+‏<script>
+‏const surahs = [
+‏  {name:"الفاتحة", ayahs:["بسم الله الرحمن الرحيم","الحمد لله رب العالمين","الرحمن الرحيم","مالك يوم الدين"]},
+‏  {name:"البقرة", ayahs:["الم","ذلك الكتاب لا ريب فيه"]},
+‏  {name:"آل عمران", ayahs:["الم","الله لا إله إلا هو الحي القيوم"]}
+];
