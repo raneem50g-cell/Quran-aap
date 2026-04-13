@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="ar">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>نور القرآن</title>
+
+
+
+<style>
+
+body{font-family:Arial;direction:rtl;margin:0;background:#f4f4f4}
+
+header{background:#2c3e50;color:white;padding:15px;text-align:center}
+
+.page{display:none;padding:15px}
+
+.active{display:block}
+
+.surah{background:white;padding:12px;margin:6px;border-radius:8px;cursor:pointer}
+
+.ayah{background:white;padding:10px;margin:6px;border-radius:8px}
+
+button{padding:8px;margin:5px;cursor:pointer}
+
+.controls{text-align:center;margin-top:10px}
+
+</style>
+
+</head>
+
+
+
+<body>
+
+
+
+<header>📖 نور القرآن - رنيم نواف العنزي</header>
+
+
+
+<div id="home" class="page active">⏳ جاري تحميل السور...</div>
+
+
+
+<div id="surahPage" class="page"></div>
+
+
+
+<script>
+
+
+
+let surahs=[];
+
+let ayahs=[];
+
+let page=0;
+
+const perPage=5; // عدد الآيات في كل صفحة
+
+
+
+// تحميل السور
+
+fetch("https://api.alquran.cloud/v1/surah")
+
+.then(r=>r.json())
+
+.then(data=>{
+
+
+
+  surahs=data.data;
+
+  let home=document.getElementById("home");
+
+  home.innerHTML="";
+
+
+
+  surahs.forEach(s=>{
+
+
+
+    let div=document.createElement("div");
+
+    div.className="surah";
+
+    div.textContent=s.number+" - "+s.name;
+
+
+
+    div.onclick=()=>openSurah(s.number);
+
+
+
+    home.appendChild(div);
+
+  });
+
+
+
+});
+
+
+
+// فتح السورة
+
+function openSurah(num){
+
+
+
+  page=0;
+
+  show("surahPage");
+
+  document.getElementById("surahPage").innerHTML="⏳ جاري التحميل...";
+
+
+
+  fetch("https://api.alquran.cloud/v1/surah/"+num)
+
+  .then(r=>r.json())
+
+  .then(d=>{
+
+
+
+    ayahs=d.data.ayahs;
+
+
+
+    renderPage(d.data.name);
+
+
+
+  });
+
+
+
+}
+
+
+
+// عرض صفحة من الآيات
+
+function renderPage(name){
+
+
+
+  let start=page*perPage;
+
+  let end=start+perPage;
+
+
+
+  let html="<button onclick='back()'>🔙 رجوع</button>";
+
+  html+="<h2>"+name+"</h2>";
+
+
+
+  for(let i=start;i<end && i<ayahs.length;i++){
+
+    html+="<div class='ayah'>"+ayahs[i].text+"</div>";
+
+  }
+
+
+
+  html+=`
+
+  <div class="controls">
+
+    <button onclick="prev()">⬅️</button>
+
+    <button onclick="next()">➡️</button>
+
+  </div>`;
+
+
+
+  document.getElementById("surahPage").innerHTML=html;
+
+}
+
+
+
+// التالي
+
+function next(){
+
+  if((page+1)*perPage < ayahs.length){
+
+    page++;
+
+    renderPage(document.querySelector("h2").innerText);
+
+  }
+
+}
+
+
+
+// السابق
+
+function prev(){
+
+  if(page>0){
+
+    page--;
+
+    renderPage(document.querySelector("h2").innerText);
+
+  }
+
+}
+
+
+
+// رجوع
+
+function back(){
+
+  show("home");
+
+}
+
+
+
+// تبديل الصفحات
+
+function show(id){
+
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+
+  document.getElementById(id).classList.add("active");
+
+}
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
+
