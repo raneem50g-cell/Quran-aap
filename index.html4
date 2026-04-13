@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>القرآن الكريم</title>
+<style>
+body { font-family: Arial; direction: rtl; padding: 20px; }
+li { cursor: pointer; margin: 8px 0; }
+#ayahs { margin-top: 20px; white-space: pre-line; }
+</style>
+</head>
+<body>
+
+<h1>📖 السور</h1>
+<ul id="list"></ul>
+
+<div id="ayahs"></div>
+
+<script>
+fetch("https://api.alquran.cloud/v1/surah")
+.then(res => res.json())
+.then(data => {
+  const surahs = data.data;
+  const list = document.getElementById("list");
+
+  surahs.forEach(surah => {
+    const li = document.createElement("li");
+    li.textContent = surah.name;
+
+    li.onclick = () => {
+      fetch(`https://api.alquran.cloud/v1/surah/${surah.number}`)
+      .then(res => res.json())
+      .then(d => {
+        const ayahs = d.data.ayahs;
+
+        let text = "";
+        ayahs.forEach(a => {
+          text += a.text + " (" + a.numberInSurah + ")\n";
+        });
+
+        document.getElementById("ayahs").innerText = text;
+      });
+    };
+
+    list.appendChild(li);
+  });
+});
+</script>
+
+</body>
+</html>
