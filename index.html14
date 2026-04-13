@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>نور القرآن</title>
+
+<style>
+body{font-family:Arial;direction:rtl;padding:20px;background:#f7f7f7}
+h1{text-align:center}
+a{display:block;padding:10px;margin:5px;background:white;border-radius:8px;cursor:pointer;text-decoration:none;color:black}
+p{background:white;padding:8px;margin:5px;border-radius:6px}
+button{padding:8px 12px;margin-bottom:10px}
+.page{display:none}
+.active{display:block}
+</style>
+</head>
+
+<body>
+
+<h1>📖 نور القرآن - رنيم نواف العنزي</h1>
+
+<div id="home" class="page active">⏳ جاري تحميل السور...</div>
+<div id="page" class="page"></div>
+
+<script>
+
+let surahs = [];
+
+// تحميل السور
+fetch("https://api.alquran.cloud/v1/surah")
+.then(r=>r.json())
+.then(data=>{
+
+  surahs = data.data;
+
+  const home = document.getElementById("home");
+  home.innerHTML = "";
+
+  surahs.forEach(s=>{
+
+    const a = document.createElement("a");
+    a.textContent = s.number + " - " + s.name;
+
+    a.onclick = ()=>openSurah(s.number);
+
+    home.appendChild(a);
+  });
+
+});
+
+function openSurah(num){
+
+  show("page");
+  document.getElementById("page").innerHTML="⏳ جاري التحميل...";
+
+  fetch("https://api.alquran.cloud/v1/surah/"+num)
+  .then(r=>r.json())
+  .then(d=>{
+
+    let html = "<button onclick='back()'>🔙 رجوع</button>";
+    html += "<h2>"+d.data.name+"</h2>";
+
+    d.data.ayahs.forEach(a=>{
+      html += "<p>"+a.text+"</p>";
+    });
+
+    document.getElementById("page").innerHTML = html;
+  })
+  .catch(()=>{
+    document.getElementById("page").innerHTML="❌ ما قدر يجيب الآيات";
+  });
+
+}
+
+function back(){
+  show("home");
+}
+
+function show(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+</script>
+
+</body>
+</html>
