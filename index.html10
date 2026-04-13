@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<html lang="ar">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>نور القرآن</title>
+
+
+
+<style>
+
+body{
+
+  font-family: Arial;
+
+  direction: rtl;
+
+  background:#f7f7f7;
+
+  padding:20px;
+
+}
+
+
+
+h1{
+
+  text-align:center;
+
+  color:#2c3e50;
+
+}
+
+
+
+input{
+
+  width:100%;
+
+  padding:10px;
+
+  margin:10px 0;
+
+  border-radius:8px;
+
+  border:1px solid #ccc;
+
+}
+
+
+
+a{
+
+  display:block;
+
+  background:white;
+
+  padding:10px;
+
+  margin:5px 0;
+
+  border-radius:8px;
+
+  text-decoration:none;
+
+  color:#2c3e50;
+
+}
+
+
+
+a:hover{
+
+  background:#eaeaea;
+
+}
+
+
+
+button{
+
+  padding:8px 12px;
+
+  margin-bottom:10px;
+
+  cursor:pointer;
+
+  border:none;
+
+  background:#2c3e50;
+
+  color:white;
+
+  border-radius:6px;
+
+}
+
+
+
+p{
+
+  background:white;
+
+  padding:8px;
+
+  margin:5px 0;
+
+  border-radius:6px;
+
+  line-height:1.8;
+
+}
+
+</style>
+
+</head>
+
+
+
+<body>
+
+
+
+<h1>📖 نور القرآن - رنيم نواف العنزي</h1>
+
+
+
+<div id="home">
+
+<input id="search" placeholder="ابحث عن سورة...">
+
+<div id="list"></div>
+
+</div>
+
+
+
+<div id="page"></div>
+
+
+
+<script>
+
+
+
+let allSurahs = [];
+
+
+
+fetch("https://api.alquran.cloud/v1/surah")
+
+.then(res => res.json())
+
+.then(data => {
+
+  allSurahs = data.data;
+
+  render(allSurahs);
+
+});
+
+
+
+function render(list){
+
+  const div = document.getElementById("list");
+
+  div.innerHTML = "";
+
+
+
+  list.forEach(s => {
+
+    const a = document.createElement("a");
+
+    a.textContent = s.number + " - " + s.name;
+
+
+
+    a.onclick = () => openSurah(s.number);
+
+
+
+    div.appendChild(a);
+
+  });
+
+}
+
+
+
+// بحث
+
+document.getElementById("search").addEventListener("input", function(){
+
+  let val = this.value;
+
+  let filtered = allSurahs.filter(s => s.name.includes(val));
+
+  render(filtered);
+
+});
+
+
+
+function openSurah(num){
+
+  document.getElementById("home").style.display = "none";
+
+  document.getElementById("page").innerHTML = "⏳ جاري التحميل...";
+
+
+
+  fetch("https://api.alquran.cloud/v1/surah/" + num)
+
+  .then(res => res.json())
+
+  .then(d => {
+
+
+
+    let html = "<button onclick='back()'>🔙 رجوع</button>";
+
+    html += "<h2>" + d.data.name + "</h2>";
+
+
+
+    d.data.ayahs.forEach(a => {
+
+      html += "<p>" + a.text + " (" + a.numberInSurah + ")</p>";
+
+    });
+
+
+
+    document.getElementById("page").innerHTML = html;
+
+  });
+
+}
+
+
+
+function back(){
+
+  document.getElementById("page").innerHTML = "";
+
+  document.getElementById("home").style.display
+
+}
+
+
+
+</script>
+
+
+
+</body>
+
+</html>
+
