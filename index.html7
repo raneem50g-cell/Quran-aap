@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ar">
+<h1>نور القران رنيم نواف العنزي<h1/>
+<head>
+<meta charset="UTF-8">
+<title>نور القران 🌙رنيم نواف العنزي </title>
+<style>
+body { font-family: Arial; direction: rtl; padding: 20px; }
+li { cursor: pointer; margin: 8px 0; }
+#ayahs { margin-top: 20px; white-space: pre-line; }
+</style>
+</head>
+<body>
+
+<h1>📖 القرآن الكريم</h1>
+
+<ul id="surahs"></ul>
+
+<div id="ayahs"></div>
+
+<script>
+const surahList = document.getElementById("surahs");
+const ayahsDiv = document.getElementById("ayahs");
+
+// جلب كل السور
+fetch("https://api.alquran.cloud/v1/surah")
+.then(res => res.json())
+.then(data => {
+
+  data.data.forEach(surah => {
+    const li = document.createElement("li");
+    li.textContent = surah.number + " - " + surah.name;
+
+    li.onclick = () => {
+      ayahsDiv.innerHTML = "⏳ جاري التحميل...";
+
+      // جلب الآيات
+      fetch("https://api.alquran.cloud/v1/surah/" + surah.number)
+      .then(res => res.json())
+      .then(d => {
+
+        let text = "<h2>" + d.data.name + "</h2>";
+
+        d.data.ayahs.forEach(a => {
+          text += "<p>" + a.text + " (" + a.numberInSurah + ")</p>";
+        });
+
+        ayahsDiv.innerHTML = text;
+      })
+      .catch(() => {
+        ayahsDiv.innerHTML = "❌ خطأ في تحميل الآيات";
+      });
+    };
+
+    surahList.appendChild(li);
+  });
+
+})
+.catch(() => {
+  surahList.innerHTML = "❌ خطأ في تحميل السور";
+});
+</script>
+
+</body>
+</html>
